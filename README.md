@@ -1,1 +1,1 @@
-# ArcaneMiner
+# Arcane Miner
