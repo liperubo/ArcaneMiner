@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>ArcaneMiner</title>
+    <style>
+    * { padding: 0; margin: 0; } 
+    canvas{
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      image-rendering: -moz-crisp-edges;
+
+      /*margin: auto 25%;*/
+      width: 50%;
+    }
+    #jogo{
+      border: solid #2e042b 2px;
+      border-top: 0;
+      background-color: #3e143b;
+    }
+    #inventario{
+      width: 25%;
+      height: 100%;
+      float: left;
+      margin-left: 0;
+      background-color: black;
+    }
+    #menu{
+      width: 25%;
+      height: 100%;
+      float: right;
+      margin-right: 0;
+      background-color: white;
+    }
+    </style>
+    <script src="phaser.min.js"></script>
+</head>
+<body style="background-color: #5e345b">
+  <div id="jogo">
+    <div id="inventario">a</div>
+    <div id="menu">a</div>
+  </div>
+<script>
+  var colours = [
+    "0x5e345b",
+    "0x8b415d",
+    "0xb96157"
+  ];
+
+  let SIZE = 3;
+  let TILE = 16;
+  let COL = 24;
+  let ROW = 16;
+  let MOVESPEED = 150;
+
+  var projectiles;
+
+  const config = {
+    type: Phaser.AUTO,
+    width: COL*TILE,
+    height: ROW*TILE,
+    parent: "jogo",
+    physics: {
+      default: "arcade",
+      arcade: {
+        gravity: { y: 0 }
+      }
+    },
+    pixelArt: true,
+    scene: {
+      preload: preload,
+      create: create,
+      update: update
+    }
+  };
+
+  const game = new Phaser.Game(config);
+
+  let controls;
+
+  function preload() {
+    this.load.spritesheet('char', 'assets/char.png', { frameWidth: 16, frameHeight: 30 });
+    this.load.spritesheet('char2', 'assets/char2.png', { frameWidth: 16, frameHeight: 30 });
+    this.load.spritesheet('char3', 'assets/char3.png', { frameWidth: 16, frameHeight: 30 });
+    this.load.spritesheet('char4', 'assets/char4.png', { frameWidth: 16, frameHeight: 30 });
+    this.load.image("mob", "assets/slime.png");
+    this.load.image("projectile", "assets/spell.png");
+    this.load.image("tiles", "Tiled/tileset.png");
+    this.load.image("ball_of_fire", "assets/Ball_of_Fire2.png");
+    this.load.tilemapTiledJSON("map", "Tiled/tilemap.json");
+  }
+
+  function create() {
+    const map = this.make.tilemap({ key: "map" });
+    const tileset = map.addTilesetImage("tileset", "tiles");
+
+    const backgroundLayer = map.createStaticLayer("background", tileset, 0, 0);
+    const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
+    wallLayer.setCollisionByProperty({ collides: true });
+    
+    const spawnPoint = map.findObject("Objects", obj => obj.name === "Spawn Point");
+
+    var mobSpawns = [];
+    for (var i = 1; i <= 12; i++) {
+      mobSpawns[i] = map.findObject("Objects", obj => obj.name === "Spawn Mob"+i);
+    }
+
+    console.log(colours);
+    
+    this.anims.create({
+     key: 'left',
+     frames: this.anims.generateFrameNumbers('char', {start: 0, end: 0}),
+     frameRate: 0,
+    });
+    this.anims.create({
+     key: 'right',
+     frames: this.anims.generateFrameNumbers('char', {start: 1, end: 1}),
+     frameRate: 0,
+    });
+    this.anims.create({
+     key: 'down',
+     frames: this.anims.generateFrameNumbers('char', {start: 2, end: 2}),
+     frameRate: 0,
+    });
+    this.anims.create({
+     key: ['up','w'],
+     frames: this.anims.generateFrameNumbers('char', {start: 3, end: 3}),
+     frameRate: 0,
+    });
+
+    player = this.physics.add
+      .sprite(spawnPoint.x, spawnPoint.y)
+      .play('down')
+      .setSize(12, 12)
+      .setOffset(2, 18);
+    /*
+    playerEnemy(player, enemy){
+      if (enemy.alive){
+        player.damage(enemy.attack);
+      }
+    }
+
+    fireballWall(fireball, wall)
+    {
+      if (fireball.active) {
+        fireball.wallCollide();
+      }
+    }
+
+    fireballEnemy(fireball, enemy)
+    {
+      if (fireball.active){
+        fireball.enemyCollide(enemy);
+      }
+    }
+
+    fireballPlayer(player, fireball)
+    {
+      if (fireball.active) {
+        fireball.playerCollide(player);
+      }
+    }
+    */
+
+
+    /*
+    const anims = this.anims;
+    anims.create({
+      key: "misa-left-walk",
+      frames: anims.generateFrameNames("atlas", { prefix: "misa-left-walk.", start: 0, end: 3, zeroPad: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    anims.create({
+      key: "misa-right-walk",
+      frames: anims.generateFrameNames("atlas", { prefix: "misa-right-walk.", start: 0, end: 3, zeroPad: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    anims.create({
+      key: "misa-front-walk",
+      frames: anims.generateFrameNames("atlas", { prefix: "misa-front-walk.", start: 0, end: 3, zeroPad: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    anims.create({
+      key: "misa-back-walk",
+      frames: anims.generateFrameNames("atlas", { prefix: "misa-back-walk.", start: 0, end: 3, zeroPad: 3 }),
+      frameRate: 10,
+      repeat: -1
+    });
+    */
+    /*
+    const debugGraphics = this.add.graphics().setAlpha(0.75);
+    wallLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    */
+    const camera = this.cameras.main;
+    camera.startFollow(player);
+    const cursors = this.input.keyboard.createCursorKeys();
+    controls = new Phaser.Cameras.Controls.FixedKeyControl({
+      camera: camera,
+      left: cursors.left,
+      right: cursors.right,
+      up: cursors.up,
+      down: cursors.down,
+      speed: 0.5
+    });
+    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+    mobs = this.add.group();
+    for (var i = 1; i <= 12; i++) {
+      mob = this.physics.add.sprite(mobSpawns[i].x, mobSpawns[i].y, 'mob');
+      mob.tint = Math.random() * 0xffffff;
+      mobs.add(mob);
+    }
+
+    projectiles = this.add.group();
+    var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 1, color: 0x3c1361, alpha: 0.5 } });
+    var line = new Phaser.Geom.Line();
+    var angle = 0;
+    var scope = false;
+
+    this.input.on('pointermove', function (pointer) {
+      angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY);
+      Phaser.Geom.Line.SetToAngle(line, player.x, player.y, angle, 128);
+      gfx.clear().strokeLineShape(line);
+
+      scope ? gfx.alpha = 1 : gfx.alpha = 0;
+
+      //this.scene.crosshair.setPosition(mouse.x + this.scene.cameras.main.scrollX, mouse.y + this.scene.cameras.main.scrollY);
+
+      //console.log(angle);
+    }, this);
+
+    //this.input.on('pointerdown', function (pointer) {
+    this.input.on('pointerup', function (pointer) {
+      angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY);
+
+      scope = false;
+
+      var projectile = this.physics.add.sprite(player.x, player.y, 'projectile').setSize(8, 8).enableBody(true, player.x, player.y, true, true);
+      this.physics.velocityFromRotation(angle, 200, projectile.body.velocity);
+      //colours[rng(0, colours.length)]
+      var colour = Math.floor(Math.random() * 0xffffff);
+      projectile.angle = (180/Math.PI)*angle+90;
+      projectile.tint = colour;
+
+      console.log(colour);
+      var particles = this.add.particles('ball_of_fire');
+      var emitter = particles.createEmitter({
+          speed: 1,
+          tint: colour,
+          scale: { start: 0.5, end: 0 },
+          blendMode: 'ADD'
+      });
+
+      projectile.setData('emitter', emitter);
+      emitter.startFollow(projectile);
+
+      projectiles.add(projectile);
+      //this.scene.playerAttack.add(fireball);
+    }, this);
+
+    this.input.on('pointerdown', function (pointer) {
+      angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.x + this.cameras.main.scrollX, pointer.y + this.cameras.main.scrollY);
+      scope = true;
+    });
+
+    this.input.on('gameobjectover', function (pointer, gameObject) {
+      mob.disableBody(true, true);
+    });
+
+    //wall
+    this.physics.add.collider(wallLayer, player);
+    this.physics.add.collider(wallLayer, mobs);
+
+    //mob
+    //this.physics.add.collider(player, mob, attackPlayer, null, this);
+    this.physics.add.collider(player, mobs);
+    this.physics.add.collider(mobs, mobs);
+
+    //projectile
+    //this.physics.add.collider(projectiles, player, hitPlayer, null, this);
+    this.physics.add.collider(projectiles, mobs, hitMob, null, this);
+    this.physics.add.collider(projectiles, wallLayer, hitWall, null, this);
+
+    /*
+    this.physics.add.collider(this.player, this.enemies, this.playerEnemy);
+    this.physics.add.collider(this.enemies, this.layer);
+    this.physics.add.collider(this.enemies, this.enemies);
+    this.physics.add.collider(this.playerAttack, this.layer, this.fireballWall);  //collide callback for fireball hitting wall
+    this.physics.add.collider(this.enemyAttack, this.layer, this.fireballWall);  //collide callback for fireball hitting wall
+    this.physics.add.collider(this.playerAttack, this.enemies, this.fireballEnemy); //collide callback for fireball hitting enemy
+    this.physics.add.collider(this.playerAttack, this.enemyAttack, 
+    this.physics.add.collider(this.player, this.enemyAttack, this.fireballPlayer);
+    */
+  }
+
+  /*
+  var adjectives = ["adamant", "adroit", "amatory"];
+  var nouns = ["ninja", "chair", "pancake"];
+  var group = this.add.group();
+  group.classType = Phaser.GameObjects.Text;
+
+  for (var i = 0; i < 32; i++){
+    var x = Phaser.Math.Between(-100, 700);
+    var y = Phaser.Math.Between(0, 550);
+    var str = Phaser.Math.RND.pick(adjectives) + ' ' + Phaser.Mathpick(nouns);
+    var font = { font: '24px Arial' };
+    var text = group.create(x, y, str, font);
+  }
+  */
+
+  function update(time, delta) {
+    const prevVelocity = player.body.velocity.clone();
+    player.body.setVelocity(0);
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    if (cursors.left.isDown) {
+      player.setVelocityX(-MOVESPEED);
+      player.play('left');
+    }
+    else if (cursors.right.isDown) {
+      player.setVelocityX(MOVESPEED);
+      player.play('right');
+    }
+    else player.setVelocityX(0);
+
+    if (cursors.up.isDown){
+      player.setVelocityY(-MOVESPEED);
+      player.play('up');
+    }
+    else if (cursors.down.isDown) {
+      player.setVelocityY(MOVESPEED);
+      player.play('down');
+    }
+    else player.setVelocityY(0);
+
+    // if (game.input.mousePointer.isDown)
+    // {
+    //     //  400 is the speed it will move towards the mouse
+    //     mob.moveToPointer('mob', 400);
+
+    //     //  if it's overlapping the mouse, don't move any more
+    //     if (Phaser.Rectangle.contains(sprite.body, game.input.x, game.input.y))
+    //     {
+    //         mob.body.velocity.setTo(0, 0);
+    //     }
+    // }
+
+    player.body.velocity.normalize().scale(MOVESPEED);
+
+    /*
+    if (cursors.left.isDown) player.anims.play("misa-left-walk", true);
+    else if (cursors.right.isDown) player.anims.play("misa-right-walk", true);
+    else if (cursors.up.isDown) player.anims.play("misa-back-walk", true);
+    else if (cursors.down.isDown) player.anims.play("misa-front-walk", true);
+    else player.anims.stop();
+
+    if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
+    else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
+    else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
+    else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
+    */
+
+    /*
+    damage(ammount) {
+      if (!this.damaged) {
+        this.health -= ammount;
+        this.damaged = true;
+        this.setTint(0x8e2f15);
+        this.scene.time.addEvent({ delay: 500, callback: this.normalize, callbackScope: this });
+      }
+    }
+  */
+  }
+
+  function hitMob (projectile, mob){
+    projectileHit(projectile);
+    mob.disableBody(true, true); 
+  }
+  function hitWall (projectile){
+    projectileHit(projectile);
+  }
+  function hitPlayer (projectile, player){
+    projectileHit(projectile);
+    player.disableBody(true, true);
+  }
+  function projectileHit(projectile){
+    projectile.disableBody(true, true);
+    //this.time.delayedCall(500, emitter.stop, [], projectile.getData('emitter'));
+    projectile.getData('emitter').stop();
+  }
+  function rng(min, max){
+    return Math.floor((Math.random() * (max-min)) + min);
+  }
+</script>
+</body>
+</html>
