@@ -10,12 +10,19 @@
       image-rendering: crisp-edges;
       image-rendering: -moz-crisp-edges;
 
+
       /*margin: auto 25%;*/
       width: 50%;
+      margin-top: 3%;
     }
     #jogo{
+      width: 1720px;
+      height: 680px;
+
+      margin-left: 4%;
+      margin-top: 2%;
+
       border: solid #2e042b 2px;
-      border-top: 0;
       background-color: #3e143b;
     }
     #inventario{
@@ -23,28 +30,29 @@
       height: 100%;
       float: left;
       margin-left: 0;
-      background-color: black;
+      background-color: #5e345b;
     }
     #menu{
       width: 25%;
       height: 100%;
       float: right;
       margin-right: 0;
-      background-color: white;
+      background-color: #5e345b;
     }
     </style>
     <script src="phaser.min.js"></script>
 </head>
-<body style="background-color: #5e345b">
+<body style="background-color: #7e547b">
   <div id="jogo">
-    <div id="inventario">a</div>
-    <div id="menu">a</div>
+    <div id="inventario"></div>
+    <div id="menu"></div>
   </div>
 <script>
   var colours = [
     "0x5e345b",
     "0x8b415d",
-    "0xb96157"
+    "0xb96157",
+    "0x6b5b95"
   ];
 
   let SIZE = 3;
@@ -120,7 +128,7 @@
      frameRate: 0,
     });
     this.anims.create({
-     key: ['up','w'],
+     key: 'up',
      frames: this.anims.generateFrameNumbers('char', {start: 3, end: 3}),
      frameRate: 0,
     });
