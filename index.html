@@ -166,43 +166,6 @@
       }
     }
     */
-
-
-    /*
-    const anims = this.anims;
-    anims.create({
-      key: "misa-left-walk",
-      frames: anims.generateFrameNames("atlas", { prefix: "misa-left-walk.", start: 0, end: 3, zeroPad: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
-    anims.create({
-      key: "misa-right-walk",
-      frames: anims.generateFrameNames("atlas", { prefix: "misa-right-walk.", start: 0, end: 3, zeroPad: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
-    anims.create({
-      key: "misa-front-walk",
-      frames: anims.generateFrameNames("atlas", { prefix: "misa-front-walk.", start: 0, end: 3, zeroPad: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
-    anims.create({
-      key: "misa-back-walk",
-      frames: anims.generateFrameNames("atlas", { prefix: "misa-back-walk.", start: 0, end: 3, zeroPad: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
-    */
-    /*
-    const debugGraphics = this.add.graphics().setAlpha(0.75);
-    wallLayer.renderDebug(debugGraphics, {
-      tileColor: null, // Color of non-colliding tiles
-      collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
-    });
-    */
     const camera = this.cameras.main;
     camera.startFollow(player);
     const cursors = this.input.keyboard.createCursorKeys();
@@ -235,10 +198,6 @@
       gfx.clear().strokeLineShape(line);
 
       scope ? gfx.alpha = 1 : gfx.alpha = 0;
-
-      //this.scene.crosshair.setPosition(mouse.x + this.scene.cameras.main.scrollX, mouse.y + this.scene.cameras.main.scrollY);
-
-      //console.log(angle);
     }, this);
 
     //this.input.on('pointerdown', function (pointer) {
@@ -267,7 +226,6 @@
       emitter.startFollow(projectile);
 
       projectiles.add(projectile);
-      //this.scene.playerAttack.add(fireball);
     }, this);
 
     this.input.on('pointerdown', function (pointer) {
@@ -305,21 +263,6 @@
     */
   }
 
-  /*
-  var adjectives = ["adamant", "adroit", "amatory"];
-  var nouns = ["ninja", "chair", "pancake"];
-  var group = this.add.group();
-  group.classType = Phaser.GameObjects.Text;
-
-  for (var i = 0; i < 32; i++){
-    var x = Phaser.Math.Between(-100, 700);
-    var y = Phaser.Math.Between(0, 550);
-    var str = Phaser.Math.RND.pick(adjectives) + ' ' + Phaser.Mathpick(nouns);
-    var font = { font: '24px Arial' };
-    var text = group.create(x, y, str, font);
-  }
-  */
-
   function update(time, delta) {
     const prevVelocity = player.body.velocity.clone();
     player.body.setVelocity(0);
@@ -346,43 +289,7 @@
     }
     else player.setVelocityY(0);
 
-    // if (game.input.mousePointer.isDown)
-    // {
-    //     //  400 is the speed it will move towards the mouse
-    //     mob.moveToPointer('mob', 400);
-
-    //     //  if it's overlapping the mouse, don't move any more
-    //     if (Phaser.Rectangle.contains(sprite.body, game.input.x, game.input.y))
-    //     {
-    //         mob.body.velocity.setTo(0, 0);
-    //     }
-    // }
-
     player.body.velocity.normalize().scale(MOVESPEED);
-
-    /*
-    if (cursors.left.isDown) player.anims.play("misa-left-walk", true);
-    else if (cursors.right.isDown) player.anims.play("misa-right-walk", true);
-    else if (cursors.up.isDown) player.anims.play("misa-back-walk", true);
-    else if (cursors.down.isDown) player.anims.play("misa-front-walk", true);
-    else player.anims.stop();
-
-    if (prevVelocity.x < 0) player.setTexture("atlas", "misa-left");
-    else if (prevVelocity.x > 0) player.setTexture("atlas", "misa-right");
-    else if (prevVelocity.y < 0) player.setTexture("atlas", "misa-back");
-    else if (prevVelocity.y > 0) player.setTexture("atlas", "misa-front");
-    */
-
-    /*
-    damage(ammount) {
-      if (!this.damaged) {
-        this.health -= ammount;
-        this.damaged = true;
-        this.setTint(0x8e2f15);
-        this.scene.time.addEvent({ delay: 500, callback: this.normalize, callbackScope: this });
-      }
-    }
-  */
   }
 
   function hitMob (projectile, mob){
